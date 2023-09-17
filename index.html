@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>일본 오사카 여행 가이드</title>
+    <style>
+        body {
+            font-family: 'Noto Sans', Arial, sans-serif;
+            padding: 0;
+            background-color: #f5f5f5;
+            text-align: center;
+            font-size: 30px; 
+        }
+
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center; 
+            font-size: 50px; 
+        }
+
+        p {
+            margin-bottom: 20px;
+            text-align: center; 
+            font-size: 30px; 
+        }
+
+        #osakaMap {
+            width: 100%;
+            height: 500px;
+        }
+
+        #photo-gallery {
+            padding: 20px;
+            background-color: #fff;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 24px; 
+            color: #333;
+        }
+
+        #photo-gallery::before {
+            content: "Enjoy Your Trip"; 
+            display: block; 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 25px; 
+        }
+
+        input[type="number"] {
+            padding: 5px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: green;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            text-align: center; 
+            font-size: 18px; 
+        }
+
+        button:hover {
+            background-color: greenzd;
+        }
+
+        #krwAmount {
+            font-weight: bold;
+            font-size: 24px; 
+            margin-top: 10px;
+            text-align: center; 
+        }
+
+        .marker-selected {
+            background-color: blue;
+            color: #fff;
+        }
+
+        .day-button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .day-button {
+            margin: 0 10px;
+            background-color: gray; 
+        }
+
+        .day-button.selected {
+            background-color: blue;
+        }
+
+        .circle-marker {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .gray-circle {
+            background-color: gray; 
+        }
+
+        .blue-circle {
+            background-color: blue; 
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>일본 오사카 여행 가이드</h1>
+
+    <div id="osakaMap"></div>
+    <div class="day-button-container">
+        <button class="day-button" onclick="selectMarker(0)">1일차</button>
+        <button class="day-button" onclick="selectMarker(1)">2일차</button>
+        <button class="day-button" onclick="selectMarker(2)">3일차</button>
+    </div>
+
+    <div id="photo-gallery"></div>
+    <h2>관광 정보</h2>
+    <p>오사카에서 관광할 가치 있는 장소:</p>
+    <ul>
+        <li>오사카 성</li>
+        <li>도톤보리</li>
+        <li>우메다 스카이 빌딩</li>
+    </ul>
+
+    <h2>유용한 일본어 표현</h2>
+    <p>
+        <strong>안녕하세요:</strong> こんにちは (곤니찌와)<br>
+        <strong>감사합니다:</strong> ありがとう (아리가토)<br>
+        <strong>예약하세요:</strong> 予約してください (요야쿠 시테 쿠다사이)
+    </p>
+
+    <h2>환율 변환</h2>
+    <p>엔화를 한국 돈으로 변환:</p>
+    <input type="number" id="jpyAmount" placeholder="엔화 금액">
+    <button onclick="convertCurrency()">환산</button>
+    <p id="krwAmount"></p>
+
+    <h2>꼭 사야할 물품</h2>
+    <p>오사카에서 꼭 사야할 물품:</p>
+    <ul>
+        <li>일본 라멘</li>
+        <li>일본 초콜릿</li>
+        <li>학용품</li>
+    </ul>
+
+    <script>
+        var map = L.map('osakaMap').setView([34.6937, 135.5023], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        var markers = [
+            L.circle([34.6937, 135.5023], {
+                radius: 100,
+                className: 'circle-marker gray-circle',
+            }).addTo(map).bindPopup('오사카 성<br>일본'),
+            L.circle([34.675, 135.4904], {
+                radius: 100,
+                className: 'circle-marker gray-circle',
+            }).addTo(map).bindPopup('도톤보리<br>일본'),
+            L.circle([34.7025, 135.4966], {
+                radius: 100,
+                className: 'circle-marker gray-circle',
+            }).addTo(map).bindPopup('우메다 스카이 빌딩<br>일본')
+        ];
+
+        function selectMarker(index) {
+            markers.forEach(function(marker) {
+                marker.closePopup();
+                marker.setStyle({className: 'circle-marker gray-circle'}); 
+            });
+
+            markers[index].openPopup();
+            markers[index].setStyle({className: 'circle-marker blue-circle'});
+        }
+
+        function convertCurrency() {
+            const jpyAmount = parseFloat(document.getElementById("jpyAmount").value);
+            const exchangeRate = 9.0;
+            const krwAmount = jpyAmount * exchangeRate;
+            document.getElementById("krwAmount").innerText = krwAmount.toFixed(2) + "원";
+        }
+    </script>
+</body>
+</html>
